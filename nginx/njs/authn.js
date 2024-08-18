@@ -34,6 +34,7 @@ function validateJwtToken(r, token) {
     const parsed = extractPayload(token);
     const payload = parsed[0];
     const header = parsed[1];
+    const signature = parsed[2];
 
     console.log("header", header);
     console.log("payload", payload);

@@ -1,6 +1,5 @@
 const crypto = require('crypto');
 
-
 /**
  * support algorithm mapping
  */
