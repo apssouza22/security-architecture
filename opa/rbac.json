@@ -1,0 +1,22 @@
+{
+  "roles": {
+    "serviceA.access": {
+      "/": ["GET", "POST", "PUT", "DELETE"],
+      "/compute": ["GET"]
+    },
+    "serviceB.access": {
+      "/": ["GET", "POST", "PUT", "DELETE"],
+      "/compute": ["GET"]
+    },
+    "serviceC.access": {
+      "/": ["GET", "POST", "PUT", "DELETE"],
+      "/compute": ["GET"]
+    }
+  },
+
+  "role_bindings": {
+    "serviceA.local":   ["serviceA.access", "serviceB.access"],
+    "serviceB.local":     ["serviceA.access","serviceB.access"],
+    "serviceC.local":     ["serviceA.access","serviceB.access","serviceC.access"]
+  }
+}

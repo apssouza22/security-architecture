@@ -1,0 +1,95 @@
+networks:
+  security-net: { }
+
+services:
+
+# OPA is a service that can be used to enforce policies on incoming requests.
+  opa:
+    image: openpolicyagent/opa:0.8.1
+    ports:
+      - 8181:8181
+    volumes:
+      - ./opa:/etc/opa
+    command:
+      - run
+      - --server
+      - --log-level=debug
+      - /etc/opa/rbac.json
+      - /etc/opa/rbac.rego
+    networks:
+      - security-net
+
+# Keycloak is an open-source identity and access management solution. It can be used to manage user authentication and authorization.
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.2
+    hostname: keycloak.local
+    environment:
+      - KC_HTTP_PORT=9000
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=password
+    ports:
+      - "9000:9000"
+    networks:
+      - security-net
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import
+    command:
+      - start-dev
+      - --import-realm
+      - --health-enabled=true
+      - --spi-truststore-file-hostname-verification-policy=ANY
+
+# Authn is a service that can be used to authenticate users and issue tokens.
+  authn:
+    hostname: authn.local
+    image: nginx:1.25.3-alpine
+    ports:
+      - "8002:80"
+    volumes:
+      - ./nginx/nginx-oidc.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/njs:/etc/nginx/njs:ro
+    networks:
+      - security-net
+    depends_on:
+      - keycloak
+
+  serviceA:
+    hostname: serviceA.local
+    image: nginx:1.25.3-alpine
+    ports:
+    - "443:443"
+    - "80:80"
+    volumes:
+      - ./certificates/gen/serviceA:/etc/nginx/certs
+      - ./certificates/gen/ca.crt:/etc/nginx/certs/ca.crt:ro
+      - ./nginx/gen/serviceA/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/njs:/etc/nginx/njs:ro
+      - ./nginx/index.html:/var/www/html/index.html
+    networks:
+        - security-net
+    depends_on:
+      - opa
+
+  serviceB:
+    hostname: serviceB.local
+    image: nginx:1.25.3-alpine
+    volumes:
+      - ./certificates/gen/serviceB:/etc/nginx/certs
+      - ./certificates/gen/ca.crt:/etc/nginx/certs/ca.crt:ro
+      - ./nginx/gen/serviceB/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/njs:/etc/nginx/njs:ro
+      - ./nginx/index.html:/var/www/html/index.html
+    networks:
+      - security-net
+
+  serviceC:
+    hostname: serviceC.local
+    image: nginx:1.25.3-alpine
+    volumes:
+      - ./certificates/gen/serviceC:/etc/nginx/certs
+      - ./certificates/gen/ca.crt:/etc/nginx/certs/ca.crt:ro
+      - ./nginx/gen/serviceC/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/njs:/etc/nginx/njs:ro
+      - ./nginx/index.html:/var/www/html/index.html
+    networks:
+      - security-net
