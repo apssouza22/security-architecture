@@ -23,7 +23,7 @@ Inside the container, you can call the service using the following command:
 curl --insecure  --cacert /etc/nginx/certs/ca.crt --cert /etc/nginx/certs/client.crt --key /etc/nginx/certs/client.key https://serviceB.local
 ```
 
-## Update certificates
+### Update certificates
 Server certificates can be update without restarting the service by running the following command:
 ```
 curl --insecure  https://localhost/certs --cacert certificates/gen/ca.crt --cert certificates/gen/serviceB/client.crt --key certificates/gen/serviceB/client.key -F cert=@certificates/gen/serviceA/client.crt -F key=@certificates/gen/serviceA/client.key
@@ -43,3 +43,16 @@ code=79e6cb5e-8ed0-4d79-b16a-ba413628edda.2df791ad-456b-401f-a209-e2bca7f391a3.8
 curl -X POST "http://localhost:9000/realms/tenantA/protocol/openid-connect/token" \
      -H "Content-Type: application/x-www-form-urlencoded" \
      -d "grant_type=authorization_code&code=${code}&redirect_uri=http://localhost:8002/auth_redirect&client_id=appTest-login-client&client_secret=vCjAY0XKadXE3n4xFUb7MGDvVJ1iVVPY"
+```
+
+## Authorization
+Authorization is done using Open Policy Agent(OPA). The policy is defined in the `opa/` directory.
+Opa is used to enforce policies for service-to-service communication and for user access control.
+
+### JWT token validation
+We use two strategies to validate JWT tokens:
+- Retrieve the public key from the Keycloak server and validate the token
+- Use x5t(Thumbprint) to retrieve the public key from a local truststore and validate the token
+
+
+

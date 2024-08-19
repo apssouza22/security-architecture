@@ -1,144 +1,86 @@
+const https = require('https');
 const crypto = require('crypto');
 
-/**
- * support algorithm mapping
- */
-const algorithmMap = {
-    HS256: 'sha256',
-    HS384: 'sha384',
-    HS512: 'sha512',
-    RS256: 'RSA-SHA256'
-};
 
-/**
- * Map algorithm to hmac or sign type, to determine which crypto function to use
- */
-const typeMap = {
-    HS256: 'hmac',
-    HS384: 'hmac',
-    HS512: 'hmac',
-    RS256: 'sign'
-};
+async function validateJwtToken(r) {
+    const token = request.headersIn.Authorization;
+    const parsed = extractPayload(token);
+    const payload = parsed[0];
+    const header = parsed[1];
+    const signature = parsed[2];
 
-
-/**
- * Decode jwt
- *
- * @param {Object} token
- * @param {String} key
- * @param {Boolean} [noVerify]
- * @param {String} [algorithm]
- * @return {Object} payload
- * @api public
- */
-function jwtVerify(token, key, noVerify, algorithm) {
-    // check token
-    if (!token) {
-        throw new Error('No token supplied');
+    r.log("token header: " + header);
+    r.log("token payload: ", payload);
+    let x5cCert = null;
+    if (header.x5t) {
+        // Another way to get the cert based in thumbprint within the token. That is used when we have all the certs available in the token
+        const thumbprint = header.x5t;
+        x5cCert= getX5cCertByThumbprint(thumbprint);
     }
-    // check segments
-    var segments = token.split('.');
-    if (segments.length !== 3) {
-        throw new Error('Not enough or too many segments');
+    if (!x5cCert) {
+        const certs = await getCerts('http://localhost:9000/realms/tenantA/protocol/openid-connect/certs');
+        const cert = certs.keys.find(key => key.kid === header.kid);
+        if (!cert) {
+            throw new Error('Certificate not found');
+        }
+        x5cCert = cert.x5c[0]
     }
 
-    // All segment should be base64
-    var headerSeg = segments[0];
-    var payloadSeg = segments[1];
-    var signatureSeg = segments[2];
+    const pemCert = convertCertToPEM(x5cCert);
+    const isValid = verifySignature(Buffer.from(header).toString('base64'), Buffer.from(payload).toString('base64'), signature, pemCert);
 
-    // base64 decode and parse JSON
-    //var header = '';
-    //var payload = '';
-    //jwt.return.return(200, payloadSeg);
-
-    var h = base64urlDecode(headerSeg);
-    var p = base64urlDecode(payloadSeg);
-
-
-    while (h.charCodeAt((h.length - 1)) === 0) {
-        h = h.substring(0, h.length - 1);
-    }
-
-    while (p.charCodeAt((p.length - 1)) === 0) {
-        p = p.substring(0, p.length - 1);
-    }
-
-
-    var header = JSON.parse(h);
-    var payload = JSON.parse(p);
-
-    if (noVerify) {
-        return payload;
-    }
-    if (!algorithm && /BEGIN( RSA)? PUBLIC KEY/.test(key.toString())) {
-        algorithm = 'RS256';
-    }
-
-    var signingMethod = algorithmMap[algorithm || header.alg];
-    var signingType = typeMap[algorithm || header.alg];
-    if (!signingMethod || !signingType) {
-        throw new Error('Algorithm not supported');
-    }
-
-    // verify signature. `sign` will return base64 string.
-    var signingInput = [headerSeg, payloadSeg].join('.');
-    if (!verify(signingInput, key, signingMethod, signingType, signatureSeg)) {
-        throw new Error('Signature verification failed');
-    }
-
-    // Support for nbf and exp claims.
-    // According to the RFC, they should be in seconds.
-    if (payload.nbf && Date.now() < payload.nbf * 1000) {
-        throw new Error('Token not yet active');
-    }
-
-    if (payload.exp && Date.now() > payload.exp * 1000) {
-        throw new Error('Token expired');
-    }
-    return payload;
-}
-
-function verify(input, key, method, type, signature) {
-    if (type === "hmac") {
-        return (signature === sign(input, key, method, type));
-    }
-    if (type == "sign") {
-        return crypto.createVerify(method)
-            .update(input)
-            .verify(key, base64urlUnescape(signature), 'base64');
-    }
-    throw new Error('Algorithm type not recognized');
-}
-
-function sign(input, key, method, type) {
-    var base64str;
-    if (type === "hmac") {
-        base64str = crypto.createHmac(method, key).update(input).digest('base64');
-    } else if (type == "sign") {
-        base64str = crypto.createSign(method).update(input).sign(key, 'base64');
+    if (isValid) {
+        r.log('Token is valid');
     } else {
-        throw new Error('Algorithm type not recognized');
+        r.log('Token is invalid');
     }
-    return base64urlEscape(base64str);
 }
 
-function base64urlDecode(str) {
-    return String.bytesFrom(str, 'base64');
+function getX5cCertByThumbprint(thumbprint) {
+    const trustedThumbprints = [
+        {'abcd1234abcd1234abcd1234abcd1234abcd1234' : "x5c value"},
+
+    ];
+
+    return  trustedThumbprints[thumbprint]
 }
 
-function base64urlUnescape(str) {
-    str += new Array(5 - str.length % 4).join('=');
-    return str.replace(/\-/g, '+').replace(/_/g, '/');
+
+function getCerts(url) {
+    return new Promise((resolve, reject) => {
+        https.get(url, (res) => {
+            let data = '';
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+            res.on('end', () => {
+                resolve(JSON.parse(data));
+            });
+        }).on('error', (err) => {
+            reject(err);
+        });
+    });
 }
 
-function base64urlEscape(str) {
-    str = str.replace(/\+/g, '-');
-    str = str.replace(/\//g, '_');
-    str = str.replace(/\=/g, '');
-    return str;
+function convertCertToPEM(cert) {
+    const pemCert = cert.match(/.{1,64}/g).join('\n');
+    return `-----BEGIN CERTIFICATE-----\n${pemCert}\n-----END CERTIFICATE-----\n`;
+}
+
+function verifySignature(header, payload, signature, cert) {
+    const verify = crypto.createVerify('RSA-SHA256');
+    verify.update(`${header}.${payload}`);
+    verify.end();
+    return verify.verify(cert, signature, 'base64');
+}
+
+function extractPayload(token) {
+    const tokenParts = token.split('.');
+    const decodedHeader = Buffer.from(tokenParts[0], 'base64').toString('utf-8');
+    const decodedPayload = Buffer.from(tokenParts[1], 'base64').toString('utf-8');
+    return [JSON.parse(decodedPayload), JSON.parse(decodedHeader), tokenParts[2]];
 }
 
 export default {
-    jwtVerify
-}
+    validateJwtToken
+};
