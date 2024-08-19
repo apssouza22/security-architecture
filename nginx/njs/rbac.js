@@ -37,16 +37,16 @@ function validate(r, res) {
         r.log("OPA response: " + opa.responseText);
         let body = JSON.parse(opa.responseText);
         if (!body.result)  {
-            res.return(403);
+            r.return(403);
             return;
         }
 
         if (!body.result.allow) {
-            res.return(403);
+            r.return(403);
             return;
         }
 
-        res.return(200);
+        r.return(200);
     });
 }
 export default {

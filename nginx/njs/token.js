@@ -1,77 +1,49 @@
-const https = require('https');
 const crypto = require('crypto');
 
-
-async function validateJwtToken(r) {
-    const token = request.headersIn.Authorization;
-    const parsed = extractPayload(token);
-    const payload = parsed[0];
-    const header = parsed[1];
-    const signature = parsed[2];
-
-    r.log("token header: " + header);
-    r.log("token payload: ", payload);
-    let x5cCert = null;
-    if (header.x5t) {
-        // Another way to get the cert based in thumbprint within the token. That is used when we have all the certs available in the token
-        const thumbprint = header.x5t;
-        x5cCert= getX5cCertByThumbprint(thumbprint);
+function validateJwtToken(r) {
+    for (const prop in crypto) {
+        r.log(prop);
     }
-    if (!x5cCert) {
-        const certs = await getCerts('http://localhost:9000/realms/tenantA/protocol/openid-connect/certs');
+    const token = r.headersIn.Authorization;
+    const tokenParts = token.split('.');
+    const decodedHeader = Buffer.from(tokenParts[0], 'base64').toString('utf-8');
+    const decodedPayload = Buffer.from(tokenParts[1], 'base64').toString('utf-8');
+    const header = JSON.parse(decodedHeader);
+    let x5cCert = null;
+
+    if (header.x5t) {
+        // We could use the thumbprint to lookup the certificate
+        const thumbprint = header.x5t;
+        x5cCert = getX5cCertByThumbprint(thumbprint);
+    }
+
+    const opts = {
+        method: "GET"
+    };
+
+    r.subrequest("/_keycloak_certs", opts, function (resp) {
+        const certs = JSON.parse(resp.responseText);
         const cert = certs.keys.find(key => key.kid === header.kid);
         if (!cert) {
-            throw new Error('Certificate not found');
+            r.return(500, 'Certificate not found');
+            return;
         }
-        x5cCert = cert.x5c[0]
-    }
-
-    const pemCert = convertCertToPEM(x5cCert);
-    const isValid = verifySignature(Buffer.from(header).toString('base64'), Buffer.from(payload).toString('base64'), signature, pemCert);
-
-    if (isValid) {
-        r.log('Token is valid');
-    } else {
-        r.log('Token is invalid');
-    }
+        x5cCert = cert.x5c[0];
+        const pemCert = convertCertToPEM(x5cCert);
+        r.return(200, "Validate the token signature with: " + pemCert);
+    });
 }
 
 function getX5cCertByThumbprint(thumbprint) {
-    const trustedThumbprints = [
-        {'abcd1234abcd1234abcd1234abcd1234abcd1234' : "x5c value"},
-
-    ];
-
-    return  trustedThumbprints[thumbprint]
-}
-
-
-function getCerts(url) {
-    return new Promise((resolve, reject) => {
-        https.get(url, (res) => {
-            let data = '';
-            res.on('data', (chunk) => {
-                data += chunk;
-            });
-            res.on('end', () => {
-                resolve(JSON.parse(data));
-            });
-        }).on('error', (err) => {
-            reject(err);
-        });
-    });
+    const trustedThumbprints = {
+        'abcd1234abcd1234abcd1234abcd1234abcd1234': "x5c value"
+    };
+    return trustedThumbprints[thumbprint];
 }
 
 function convertCertToPEM(cert) {
     const pemCert = cert.match(/.{1,64}/g).join('\n');
     return `-----BEGIN CERTIFICATE-----\n${pemCert}\n-----END CERTIFICATE-----\n`;
-}
-
-function verifySignature(header, payload, signature, cert) {
-    const verify = crypto.createVerify('RSA-SHA256');
-    verify.update(`${header}.${payload}`);
-    verify.end();
-    return verify.verify(cert, signature, 'base64');
 }
 
 function extractPayload(token) {

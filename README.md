@@ -45,6 +45,19 @@ curl -X POST "http://localhost:9000/realms/tenantA/protocol/openid-connect/token
      -d "grant_type=authorization_code&code=${code}&redirect_uri=http://localhost:8002/auth_redirect&client_id=appTest-login-client&client_secret=vCjAY0XKadXE3n4xFUb7MGDvVJ1iVVPY"
 ```
 
+### Client credentials
+We created a client credentials client in the realm `tenantA` to demonstrate how to authenticate using client credentials.
+This type of client is used to authenticate services.
+
+Create a token using client credentials to authenticate services.
+```
+curl -X POST "http://localhost:9000/realms/tenantA/protocol/openid-connect/token" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "grant_type=client_credentials" \
+     -d "client_id=client_credentials-test" \
+     -d "client_secret=your-client-secret-here"
+```
+
 ## Authorization
 Authorization is done using Open Policy Agent(OPA). The policy is defined in the `opa/` directory.
 Opa is used to enforce policies for service-to-service communication and for user access control.
@@ -53,6 +66,8 @@ Opa is used to enforce policies for service-to-service communication and for use
 We use two strategies to validate JWT tokens:
 - Retrieve the public key from the Keycloak server and validate the token
 - Use x5t(Thumbprint) to retrieve the public key from a local truststore and validate the token
+See the `nginx/njs/token.js`
+
 
 
 
