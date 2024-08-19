@@ -11,10 +11,19 @@ function validateJwtToken(r) {
     const header = JSON.parse(decodedHeader);
     let x5cCert = null;
 
+    if (header.x5c) {
+        x5cCert = header.x5c[0];
+
+    }
+
     if (header.x5t) {
         // We could use the thumbprint to lookup the certificate
         const thumbprint = header.x5t;
         x5cCert = getX5cCertByThumbprint(thumbprint);
+        const pemCert = convertCertToPEM(x5cCert);
+        // TODO: validate the certificate against a list of trusted CAs
+
+        r.return(200, "Validate the token signature with: " + pemCert);
     }
 
     const opts = {

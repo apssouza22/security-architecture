@@ -1,13 +1,15 @@
 # Security Architecture
 This project is a demonstration of how to secure services using different security mechanisms. 
+
 We leverage the following technologies to secure services:
 - Mutual TLS
 - Keycloak
 - Open Policy Agent(OPA)
 - Nginx
-- Client certificates
+- Client certificates authorization
 - OpenID Connect
 - JWT
+- Service to service authentication(Client credentials)
 
 ## Certificate management
 The project uses a self-signed certificate authority to generate certificates for services. 
@@ -39,10 +41,10 @@ Go to Login page-  http://127.0.0.1:9000/realms/tenantA/protocol/openid-connect/
 
 Retrieve Token with code
 ```
-code=79e6cb5e-8ed0-4d79-b16a-ba413628edda.2df791ad-456b-401f-a209-e2bca7f391a3.808dd751-6494-4182-95ce-c7e7dfa0c0cc 
+CODE=the returned code here
 curl -X POST "http://localhost:9000/realms/tenantA/protocol/openid-connect/token" \
      -H "Content-Type: application/x-www-form-urlencoded" \
-     -d "grant_type=authorization_code&code=${code}&redirect_uri=http://localhost:8002/auth_redirect&client_id=appTest-login-client&client_secret=vCjAY0XKadXE3n4xFUb7MGDvVJ1iVVPY"
+     -d "grant_type=authorization_code&code=${CODE}&redirect_uri=http://localhost:8002/auth_redirect&client_id=appTest-login-client&client_secret=vCjAY0XKadXE3n4xFUb7MGDvVJ1iVVPY"
 ```
 
 ### Client credentials
@@ -63,11 +65,10 @@ Authorization is done using Open Policy Agent(OPA). The policy is defined in the
 Opa is used to enforce policies for service-to-service communication and for user access control.
 
 ### JWT token validation
-We use two strategies to validate JWT tokens:
+We use three strategies to validate JWT tokens:
 - Retrieve the public key from the Keycloak server and validate the token
 - Use x5t(Thumbprint) to retrieve the public key from a local truststore and validate the token
+- Using embedded certificate to validate the token after validating the certificate against a CA
+
 See the `nginx/njs/token.js`
-
-
-
 
