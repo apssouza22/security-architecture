@@ -11,6 +11,8 @@ We leverage the following technologies to secure services:
 - JWT
 - Service to service authentication(Client credentials)
 
+<img src="./arch.jpg">
+
 ## Setup
 - `./provisioning.sh`
 - `docker-compose up`
