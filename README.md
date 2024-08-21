@@ -11,6 +11,10 @@ We leverage the following technologies to secure services:
 - JWT
 - Service to service authentication(Client credentials)
 
+## Setup
+- `./provisioning.sh`
+- `docker-compose up`
+
 ## Certificate management
 The project uses a self-signed certificate authority to generate certificates for services. 
 The certificates are generated using the `./provisioning.sh` script. The certificates are generated in the `certificates/gen` directory.
