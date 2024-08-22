@@ -4,7 +4,7 @@ cd ${SCRIPT_DIR} # enable calling this script from any directory
 rm -rf "gen/$1"
 mkdir -p "gen/$1"
 
-# Generate Service Certificate Configuration
+echo "Generate Service Certificate Configuration"
 CLIENT_CONF=$(cat client_config.cnf)
 CLIENT_CONF="${CLIENT_CONF//SERVICE_NAME/$1.local}"
 

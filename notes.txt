@@ -4,3 +4,11 @@ Useful links
 https://github.com/nginx/njs-examples?tab=readme-ov-file#using-auth-request-http-async-var-auth-request
 https://medium.com/@buffetbenjamin/keycloak-essentials-openid-connect-c7fa87d3129d
 https://github.com/summerwind/opa-nginx-rbac
+
+
+```
+CODE=the returned code here
+curl -X POST "http://localhost:9000/realms/tenantA/protocol/openid-connect/token" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "grant_type=authorization_code&code=${CODE}&redirect_uri=http://localhost:8002/auth_redirect&client_id=appTest-login-client&client_secret=vCjAY0XKadXE3n4xFUb7MGDvVJ1iVVPY"
+```
