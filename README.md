@@ -70,14 +70,8 @@ The project uses shell script to simulate the certificate authority and generate
 The certificates are generated using the `./provisioning.sh` script. The certificates are generated in the `certificates/gen` directory.
 
 ### Calling services with certificates
-From the host machine, you can call the service using the following command:
-```
-curl --insecure  --cacert certificates/gen/ca.crt --cert certificates/gen/serviceA/client.crt --key certificates/gen/serviceA/client.key https://localhost
-```
-Inside the container, you can call the service using the following command:
-```
-curl --insecure  --cacert /etc/nginx/certs/ca.crt --cert /etc/nginx/certs/client.crt --key /etc/nginx/certs/client.key https://serviceB.local
-```
+To test the service to service communication using certificates, you can use the `test_services.sh` script.
+
 
 ### Update certificates
 Server certificates can be updated without restarting the service by running the following command:

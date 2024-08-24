@@ -2,14 +2,11 @@ package httpapi.rbac
 
 import input as req
 
-import data.roles
-import data.role_bindings
+import data.access_policies
 
 default allow = false
 
 allow {
-  user_bindings = role_bindings[req.user][_]
-  user_roles = roles[user_bindings]
-  user_rules = user_roles[req.path]
-  user_rules[_] = req.method
+  service_access = access_policies[req.origin][_]
+  service_access[_] = req.destination
 }

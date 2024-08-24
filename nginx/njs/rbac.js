@@ -19,10 +19,12 @@ function validate(r, res) {
         res.return(403);
         return;
     }
+    r.log("destination: " + r.variables.host);
 
     let opa_data = {
         "input": {
-            "user": match[1],
+            "origin": match[1],
+            "destination": r.variables.host,
             "path": r.variables.request_uri,
             "method": r.variables.request_method
         }

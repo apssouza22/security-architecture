@@ -1,22 +1,16 @@
 {
-  "roles": {
-    "serviceA.access": {
-      "/": ["GET", "POST", "PUT", "DELETE"],
-      "/compute": ["GET"]
+  "access_policies": {
+    "serviceA.local": {
+      "services": ["servicea.local", "serviceb.local","localhost"],
+      "paths": ["/", "/compute", "/protected"]
     },
-    "serviceB.access": {
-      "/": ["GET", "POST", "PUT", "DELETE"],
-      "/compute": ["GET"]
+    "serviceB.local": {
+      "services": ["servicea.local", "serviceb.local"],
+      "paths": ["/", "/compute", "/protected"]
     },
-    "serviceC.access": {
-      "/": ["GET", "POST", "PUT", "DELETE"],
-      "/compute": ["GET"]
+    "serviceC.local": {
+      "services": ["servicea.local", "serviceb.local"],
+      "paths": ["/", "/compute", "/protected"]
     }
-  },
-
-  "role_bindings": {
-    "serviceA.local":   ["serviceA.access", "serviceB.access"],
-    "serviceB.local":     ["serviceA.access","serviceB.access"],
-    "serviceC.local":     ["serviceA.access","serviceB.access","serviceC.access"]
   }
 }
