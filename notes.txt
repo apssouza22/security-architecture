@@ -4,7 +4,7 @@ Useful links
 https://github.com/nginx/njs-examples?tab=readme-ov-file#using-auth-request-http-async-var-auth-request
 https://medium.com/@buffetbenjamin/keycloak-essentials-openid-connect-c7fa87d3129d
 https://github.com/summerwind/opa-nginx-rbac
-
+https://community.auth0.com/t/how-is-jwt-io-able-to-validate-signatures/122194
 
 ```
 CODE=the returned code here

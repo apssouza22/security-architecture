@@ -1,23 +1,5 @@
 /**
- * NGINX Secure Traffic Serving - JavaScript Module
- *
- * This JavaScript module enables NGINX to securely serve encrypted traffic without server restarts when certificate or key changes occur.
- *
- * Usage:
- * 1. Install and configure NGINX with the NJS module.
- * 2. Include the provided JavaScript module (dynamic.js) in your NGINX configuration.
- * 3. Set up an HTTP endpoint to handle file uploads (e.g., /upload).
- * 4. Clients can use the endpoint to upload certificate and key files using the 'curl' command, like so:
- *    curl http://localhost:8000/upload -F cert=@/path/www.example.com.crt -F key=@/path/www.example.com.key
- *
- * Benefits:
- * - Dynamic SSL certificate and key management without server restarts.
- * - Handle certs/keys file uploads.
- * - Efficient and uninterrupted serving of encrypted traffic using shared_dict to minimize disk IO and cache certs/keys.
- *
- * Note:
- * - Ensure appropriate file permissions for the NGINX server to write uploaded files.
- * - Validate and sanitize uploaded file content to prevent security risks.
+ * Dynamically update SSL certificates and keys through rest API
  */
 
 import fs from 'fs'

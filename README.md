@@ -28,8 +28,9 @@ Two clients are defined:
 Keycloak Console URL: http://localhost:9000 - credential: admin/password
 
 ### Authentication flow (Keycloak)
-- Go to [Login page](http://127.0.0.1:9000/realms/tenantA/protocol/openid-connect/auth?scope=openid&response_type=code&client_id=appTest-login-client&redirect_uri=http://localhost:8002/auth_redirect&client_secret=vCjAY0XKadXE3n4xFUb7MGDvVJ1iVVPY&application_type=web_app)
+- Go to [Login page](http://localhost:8002/login)
 - After login, the user will be redirected to a callback page with an authorization code which can be used to retrieve a Jwt token.
+- See the `authn.js` file in the `nginx/njs` directory to learn more.
 
 
 ### Client credentials
@@ -46,6 +47,9 @@ curl -X POST "http://localhost:9000/realms/tenantA/protocol/openid-connect/token
 ```
 
 ## Authorization
+We offer two types of authorization:
+- Service-to-service authorization
+- User access control
 
 ### Service-to-service authorization
 Service-to-service authorization is performed in two levels:
