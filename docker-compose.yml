@@ -46,7 +46,7 @@ services:
     ports:
       - "8002:80"
     volumes:
-      - ./nginx/nginx-oidc.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx-authn.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/njs:/etc/nginx/njs:ro
     networks:
       - security-net

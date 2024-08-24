@@ -1,15 +1,15 @@
 # Security Architecture
-This project is a demonstration of how to secure services using different security mechanisms. 
+This open-source project demonstrates how to secure services using a variety of security mechanisms. It integrates several key technologies to enforce authentication, authorization, and secure communication between services. The primary components and technologies used in this project include:
 
-We leverage the following technologies to secure services:
-- Mutual TLS
-- Keycloak
-- Open Policy Agent(OPA)
-- Nginx
-- Client certificates authorization
-- OpenID Connect
-- JWT
-- Service to service authentication(Client credentials)
+- Mutual TLS: Ensures secure communication between services by using mutual authentication.
+- Keycloak: Manages authentication and authorization, with support for OpenID Connect and JWT tokens.
+- Open Policy Agent (OPA): Enforces fine-grained policies for service-to-service and user access control.
+- Nginx: Acts as a reverse proxy and handles client certificate authorization and JWT validation.
+- Client Certificates Authorization: Enhances security by requiring client certificates for service access.
+- OpenID Connect: Used for user authentication, allowing integration with identity providers.
+- JWT (JSON Web Tokens): Used for secure token-based authentication and authorization.
+- Service-to-Service Authentication: Implemented using the client credentials grant type in Keycloak.
+
 
 <img src="./arch.jpg">
 
