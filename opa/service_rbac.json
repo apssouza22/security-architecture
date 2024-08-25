@@ -1,7 +1,7 @@
 {
-  "access_policies": {
+  "service_access_policies": {
     "serviceA.local": {
-      "services": ["servicea.local", "serviceb.local","localhost"],
+      "services": ["servicea.local", "serviceb.local", "localhost"],
       "paths": ["/", "/compute", "/protected"]
     },
     "serviceB.local": {

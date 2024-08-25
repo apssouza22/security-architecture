@@ -1,14 +1,16 @@
 # Security Architecture
-This open-source project demonstrates how to secure services using a variety of security mechanisms. It integrates several key technologies to enforce authentication, authorization, and secure communication between services. The primary components and technologies used in this project include:
+This project demonstrates how to integrate several security mechanisms and technologies to tackle common security challenges such as authentication, authorization, and secure communication.
 
-- Mutual TLS: Ensures secure communication between services by using mutual authentication.
-- Keycloak: Manages authentication and authorization, with support for OpenID Connect and JWT tokens.
-- Open Policy Agent (OPA): Enforces fine-grained policies for service-to-service and user access control.
-- Nginx: Acts as a reverse proxy and handles client certificate authorization and JWT validation.
-- Client Certificates Authorization: Enhances security by requiring client certificates for service access.
-- OpenID Connect: Used for user authentication, allowing integration with identity providers.
-- JWT (JSON Web Tokens): Used for secure token-based authentication and authorization.
-- Service-to-Service Authentication: Implemented using the client credentials grant type in Keycloak.
+
+### Understanding Security Challenges in Distributed Systems
+
+Distributed systems involve multiple services or microservices that must communicate securely across a network. Key security challenges in such architectures include:
+
+1. **Secure Communication:** Ensuring that data transmitted between services is encrypted and safe from eavesdropping or tampering.
+2. **Authentication:** Verifying the identities of users and services to prevent unauthorized access.
+3. **Authorization:** Controlling what authenticated users and services are allowed to do, based on their roles and permissions.
+4. **Policy Enforcement:** Implementing fine-grained access controls and policies that govern service-to-service and user interactions.
+5. **Certificate Management:** Managing digital certificates for encrypting data and establishing trust between services.
 
 
 <img src="./arch.jpg">

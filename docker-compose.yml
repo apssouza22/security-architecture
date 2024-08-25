@@ -14,8 +14,10 @@ services:
       - run
       - --server
       - --log-level=debug
-      - /etc/opa/rbac.json
-      - /etc/opa/rbac.rego
+      - /etc/opa/service_rbac.json
+      - /etc/opa/service_rbac.rego
+      - /etc/opa/user_rbac.json
+      - /etc/opa/user_rbac.rego
     networks:
       - security-net
 
