@@ -26,7 +26,8 @@ function validate(r, res) {
             "origin": match[1],
             "destination": r.variables.host,
             "path": r.variables.request_uri,
-            "method": r.variables.request_method
+            "method": r.variables.request_method,
+            "token":  r.headersIn.Authorization
         }
     };
 
