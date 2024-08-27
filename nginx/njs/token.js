@@ -4,13 +4,16 @@
  * We can use the certificate to validate the token signature after validating the certificate against the trusted CA.
  * @param header
  * @param r
+ * @param callbackFn
  * @returns {boolean}
  */
-function validateUsingEmbeddedCert(header, r) {
+function validateUsingEmbeddedCert(header, r, callbackFn) {
     if (header.x5c) {
+        const leafCert = header.x5c[0];
         // TODO: validate the certificate against the trusted CA
         // TODO: validate the token signature with the certificate
-        r.return(200, "Validate the token signature with: " + leafCert);
+        r.log("Validate the token signature with: " + leafCert);
+        callbackFn(true);
         return true
     }
     return false
@@ -22,16 +25,18 @@ function validateUsingEmbeddedCert(header, r) {
  *
  * @param header
  * @param r
+ * @param callbackFn
  * @returns {boolean}
  */
-function validateUsingThumbprintAndTrustStore(header, r) {
+function validateUsingThumbprintAndTrustStore(header, r, callbackFn) {
     if (header.x5t) {
         // The token can contain the certificate thumbprint embedded in the x5t header. We could use the thumbprint to lookup the certificate
         const thumbprint = header.x5t;
         const x5cCert = getCertFromTrustStore(thumbprint);
         const pemCert = convertCertToPEM(x5cCert);
         // TODO: validate the token signature with the certificate
-        r.return(200, "Validate the token signature with: " + pemCert);
+        r.log("Validate the token signature with: " + pemCert);
+        callbackFn(true);
         return true
     }
     return false;
@@ -42,8 +47,9 @@ function validateUsingThumbprintAndTrustStore(header, r) {
  * We can use the key id to lookup the certificate in the IDP certs endpoint and validate the token signature with the certificate.
  * @param r
  * @param header
+ * @param callbackFn
  */
-function validateUsingIdpCerts(r, header) {
+function validateUsingIdpCerts(r, header, callbackFn) {
     r.subrequest("/_keycloak_certs", {method: "GET"}, function (resp) {
         const certs = JSON.parse(resp.responseText);
         const cert = certs.keys.find(key => key.kid === header.kid);
@@ -53,7 +59,8 @@ function validateUsingIdpCerts(r, header) {
         }
         const x5cCert = cert.x5c[0];
         const pemCert = convertCertToPEM(x5cCert);
-        r.return(200, "Validate the token signature with: " + pemCert);
+        r.log("Validate the token signature with: " + pemCert);
+        callbackFn(true);
     });
 }
 
@@ -61,20 +68,27 @@ function validateUsingIdpCerts(r, header) {
  * Validate the JWT token.
  * @param r
  */
-function validateJwtToken(r) {
+function validateJwtToken(r, callback) {
     const token = r.headersIn.Authorization;
     const tokenParts = token.split('.');
     const decodedHeader = Buffer.from(tokenParts[0], 'base64').toString('utf-8');
     const decodedPayload = Buffer.from(tokenParts[1], 'base64').toString('utf-8');
     const header = JSON.parse(decodedHeader);
-    if(validateUsingEmbeddedCert(header, r)) {
-        return
+    let callbackFn = callback;
+    if(!callback){
+        callbackFn = function(isValid) {
+            r.log("Token is valid: " + isValid);
+        }
     }
 
-    if(validateUsingThumbprintAndTrustStore(header, r)) {
-        return;
+    if(validateUsingEmbeddedCert(header, r, callbackFn)) {
+        return true;
     }
-    validateUsingIdpCerts(r, header);
+
+    if(validateUsingThumbprintAndTrustStore(header, r, callbackFn)) {
+        return true;
+    }
+    return validateUsingIdpCerts(r, header, callbackFn);
 }
 
 function getCertFromTrustStore(thumbprint) {

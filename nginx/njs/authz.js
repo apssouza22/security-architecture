@@ -1,3 +1,4 @@
+import token from './token.js';
 /**
  * Validate the request based on the client certificate and OPA policy.
  * @param r
@@ -48,6 +49,10 @@ function validate(r, res) {
             r.return(403);
             return;
         }
+        token.validateJwtToken(r, (isValid)=>{
+            // TODO: perform user authorization using OPA
+            r.log("Token is valid: "+isValid);
+        });
 
         r.return(200);
     });
