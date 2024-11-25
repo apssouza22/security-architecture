@@ -67,9 +67,14 @@ function validateUsingIdpCerts(r, header, callbackFn) {
 /**
  * Validate the JWT token.
  * @param r
+ * @param callback
  */
 function validateJwtToken(r, callback) {
     const token = r.headersIn.Authorization;
+    if(!token) {
+        r.return(401, "Token not found");
+        return false;
+    }
     const tokenParts = token.split('.');
     const decodedHeader = Buffer.from(tokenParts[0], 'base64').toString('utf-8');
     const decodedPayload = Buffer.from(tokenParts[1], 'base64').toString('utf-8');

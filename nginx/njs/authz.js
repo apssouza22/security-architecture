@@ -51,10 +51,10 @@ function validate(r, res) {
         }
         token.validateJwtToken(r, (isValid)=>{
             // TODO: perform user authorization using OPA
-            r.log("Token is valid: "+isValid);
-        });
+            r.log("Common: Token is valid: "+isValid);
 
-        r.return(200);
+            r.return(200);
+        });
     });
 }
 export default {

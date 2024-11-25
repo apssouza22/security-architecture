@@ -10,10 +10,12 @@ import fs from 'fs'
  * @returns {string, string} - The cert associated with the server name.
  */
 function js_cert(r) {
+    r.log("retrieving cert: " + r.variables['ssl_server_name']);
+
     if (r.variables['ssl_server_name']) {
         return read_cert_or_key(r, 'service.crt');
     } else {
-        return '';
+        return read_cert_or_key(r, 'service.crt');
     }
 }
 
@@ -34,7 +36,7 @@ function js_key(r) {
     if (r.variables['ssl_server_name']) {
         return read_cert_or_key(r, 'service.key');
     } else {
-        return '';
+        return read_cert_or_key(r, 'service.key');
     }
 }
 
