@@ -11,20 +11,20 @@ import fs from 'fs'
  */
 function js_cert(r) {
     r.log("retrieving cert: " + r.variables['ssl_server_name']);
+    return read_cert_or_key(r, 'service.crt');
 
-    if (r.variables['ssl_server_name']) {
-        return read_cert_or_key(r, 'service.crt');
-    } else {
-        return read_cert_or_key(r, 'service.crt');
-    }
+    // if (r.variables['ssl_server_name']) {
+    //     read_cert_or_key(r, r.variables['ssl_server_name'] + '.crt');
+    // }
+    // return '';
 }
 
 function js_ca_cert(r) {
-    if (r.variables['ssl_server_name']) {
-        return read_cert_or_key(r, 'ca.crt');
-    } else {
-        return '';
-    }
+    return read_cert_or_key(r, 'ca.crt');
+    // if (r.variables['ssl_server_name']) {
+    //     read_cert_or_key(r, r.variables['ssl_server_name'] + '-ca.crt');
+    // }
+    // return '';
 }
 
 /**
@@ -33,11 +33,12 @@ function js_ca_cert(r) {
  * @returns {string} - The key associated with the server name.
  */
 function js_key(r) {
-    if (r.variables['ssl_server_name']) {
-        return read_cert_or_key(r, 'service.key');
-    } else {
-        return read_cert_or_key(r, 'service.key');
-    }
+    return read_cert_or_key(r, 'service.key');
+    // When a client initiates an SSL/TLS connection, it includes the desired hostname in the SNI field
+    // if (r.variables['ssl_server_name']) {
+    //     return read_cert_or_key(r, r.variables['ssl_server_name'] + '.key');
+    // }
+    // return '';
 }
 
 /**
