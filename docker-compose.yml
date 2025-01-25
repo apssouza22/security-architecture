@@ -1,5 +1,10 @@
 networks:
-  security-net: { }
+  security-net: {}
+  default:
+    ipam:
+      config:
+        - subnet: 172.16.0.0/23
+          ip_range: 172.16.0.0/24
 
 services:
 
@@ -18,8 +23,6 @@ services:
       - /etc/opa/service_rbac.rego
       - /etc/opa/user_rbac.json
       - /etc/opa/user_rbac.rego
-    networks:
-      - security-net
 
 # Keycloak is an open-source identity and access management solution. It can be used to manage user authentication and authorization.
   keycloak:
@@ -31,8 +34,6 @@ services:
       - KEYCLOAK_ADMIN_PASSWORD=password
     ports:
       - "9000:9000"
-    networks:
-      - security-net
     volumes:
       - ./keycloak:/opt/keycloak/data/import
     command:
@@ -52,10 +53,10 @@ services:
       - ./certificates/gen/ca.crt:/etc/nginx/certs/ca.crt:ro
       - ./nginx/nginx-authn.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/njs:/etc/nginx/njs:ro
-    networks:
-      - security-net
     depends_on:
       - keycloak
+      - dnsmasq
+    dns: 172.16.1.1
 
   serviceA:
     hostname: serviceA.local
@@ -69,10 +70,11 @@ services:
       - ./nginx/gen/serviceA/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/njs:/etc/nginx/njs:ro
       - ./nginx/index.html:/var/www/html/index.html
-    networks:
-        - security-net
     depends_on:
       - opa
+    networks:
+      default:
+        ipv4_address: 172.16.1.4
 
   serviceB:
     hostname: serviceB.local
@@ -83,8 +85,6 @@ services:
       - ./nginx/gen/serviceB/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/njs:/etc/nginx/njs:ro
       - ./nginx/index.html:/var/www/html/index.html
-    networks:
-      - security-net
 
   serviceC:
     hostname: serviceC.local
@@ -95,5 +95,19 @@ services:
       - ./nginx/gen/serviceC/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/njs:/etc/nginx/njs:ro
       - ./nginx/index.html:/var/www/html/index.html
+
+  dnsmasq:
+    image:  strm/dnsmasq
+    container_name: dnsmasq
+    restart: on-failure
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf
+    ports:
+      - "53/udp"
     networks:
-      - security-net
+      default:
+        ipv4_address: 172.16.1.1
+
+
