@@ -1,9 +1,10 @@
 import token from './token.js';
 /**
  * Validate the request based on the client certificate and OPA policy.
- * @param r
+ * @param r see http://nginx.org/en/docs/njs/reference.html
  * @param res
  */
+
 function validate(r, res) {
      r.log(JSON.stringify(Object.keys(r)));
      res = r

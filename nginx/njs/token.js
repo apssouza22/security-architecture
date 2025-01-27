@@ -3,7 +3,7 @@
  * Token can contain the certificate in the x5c header.
  * We can use the certificate to validate the token signature after validating the certificate against the trusted CA.
  * @param header
- * @param r
+ * @param r see http://nginx.org/en/docs/njs/reference.html
  * @param callbackFn
  * @returns {boolean}
  */
@@ -24,7 +24,7 @@ function validateUsingEmbeddedCert(header, r, callbackFn) {
  * We can use the thumbprint to lookup the certificate in the trust store and validate the token signature with the certificate.
  *
  * @param header
- * @param r
+ * @param r see http://nginx.org/en/docs/njs/reference.html
  * @param callbackFn
  * @returns {boolean}
  */
@@ -45,7 +45,7 @@ function validateUsingThumbprintAndTrustStore(header, r, callbackFn) {
 /**
  * Validate token using the IDP certificates. The token can contain the key id in the header.
  * We can use the key id to lookup the certificate in the IDP certs endpoint and validate the token signature with the certificate.
- * @param r
+ * @param r see http://nginx.org/en/docs/njs/reference.html
  * @param header
  * @param callbackFn
  */
@@ -66,7 +66,7 @@ function validateUsingIdpCerts(r, header, callbackFn) {
 
 /**
  * Validate the JWT token.
- * @param r
+ * @param r see http://nginx.org/en/docs/njs/reference.html
  * @param callback
  */
 function validateJwtToken(r, callback) {

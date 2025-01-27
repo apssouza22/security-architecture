@@ -27,7 +27,7 @@ SERVICEC_SERVICEB=$(docker exec security-arch-serviceC-1 curl -s -o /dev/null -w
 SERVICEC_SERVICEA=$(docker exec security-arch-serviceC-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --insecure  --cert /etc/nginx/certs/client.crt --key /etc/nginx/certs/client.key https://serviceB.local)
 
 LOCAL_SERVICEA=$(curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token"  --insecure  --cacert certificates/gen/ca.crt --cert certificates/gen/serviceA/client.crt --key certificates/gen/serviceA/client.key https://localhost)
-PROXY=$(curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" http://localhost:8002/secure-proxy)
+PROXY=$(curl -s -o /dev/null -w "%{http_code}" --header "X-Backend-URL: https://serviceA.local?my=test" --header "Authorization: $token" http://localhost:8002/secure-proxy)
 
 # This is enough to establish the TLS communication when we want to only verify the server identity. Not mutual TLS
 # curl --cacert certificates/gen/ca.crt https://serviceA.local

@@ -84,3 +84,7 @@ Server certificates can be updated without restarting the service by running the
 ```
 curl --insecure  https://localhost/certs --cacert certificates/gen/ca.crt --cert certificates/gen/serviceB/client.crt --key certificates/gen/serviceB/client.key -F cert=@certificates/gen/serviceA/client.crt -F key=@certificates/gen/serviceA/client.key
 ```
+
+## Local DNS
+The project uses a local DNS server to resolve the service names to the IP addresses of the services. 
+This was required for nginx to resolve the service names when using dynamic upstream urls. 

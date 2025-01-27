@@ -6,6 +6,9 @@ function extractPayload(token) {
 }
 
 
+/**
+ * @param r see http://nginx.org/en/docs/njs/reference.html
+ */
 function exchangeCodeForToken(r) {
     r.log(r.args.code);
     const code = r.args.code;
@@ -30,6 +33,10 @@ function exchangeCodeForToken(r) {
     });
 }
 
+/**
+ * @param r see http://nginx.org/en/docs/njs/reference.html
+ * @param token
+ */
 function validateJwtToken(r, token) {
     const parsed = extractPayload(token);
     const payload = parsed[0];
