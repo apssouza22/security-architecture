@@ -6,9 +6,15 @@ https://medium.com/@buffetbenjamin/keycloak-essentials-openid-connect-c7fa87d312
 https://github.com/summerwind/opa-nginx-rbac
 https://community.auth0.com/t/how-is-jwt-io-able-to-validate-signatures/122194
 
+https://github.com/vadimeisenbergibm/envoy-generic-forward-proxy/blob/master/nginx_forward_proxy/nginx.conf
+https://github.com/vadimeisenbergibm/envoy-generic-forward-proxy/blob/master/envoy_sidecar_after_nginx/set_iptables.sh
+https://github.com/jmwhitworth/docker-php-lamp/tree/master
+https://github.com/nginx/njs-examples?tab=readme-ov-file
 ```
 CODE=the returned code here
 curl -X POST "http://localhost:9000/realms/tenantA/protocol/openid-connect/token" \
      -H "Content-Type: application/x-www-form-urlencoded" \
      -d "grant_type=authorization_code&code=${CODE}&redirect_uri=http://localhost:8002/auth_redirect&client_id=appTest-login-client&client_secret=vCjAY0XKadXE3n4xFUb7MGDvVJ1iVVPY"
 ```
+
+

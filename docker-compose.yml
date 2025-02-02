@@ -56,7 +56,9 @@ services:
     depends_on:
       - keycloak
       - dnsmasq
-
+    networks:
+      default:
+        ipv4_address: 172.16.1.2
   serviceA:
     hostname: serviceA.local
     image: nginx:1.25.3-alpine
@@ -92,6 +94,7 @@ services:
       - ./nginx/njs:/etc/nginx/njs:ro
       - ./nginx/index.html:/var/www/html/index.html
 
+# Dnsmasq is a lightweight DNS forwarder and DHCP server. It can be used to resolve DNS queries and provide IP addresses to clients.
   dnsmasq:
     image:  strm/dnsmasq
     container_name: dnsmasq
@@ -107,3 +110,17 @@ services:
         ipv4_address: 172.16.1.1
 
 
+  client:
+    hostname: client.local
+    image: nginx:1.25.3-alpine
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - authn
+    command: >
+      /bin/sh -c "
+      apk add --no-cache iptables &&
+      iptables -t nat -A OUTPUT -p tcp --dport 80 -j DNAT --to-destination 172.16.1.2:81 &&
+      iptables -t nat -A POSTROUTING -j MASQUERADE &&
+      tail -f /dev/null"

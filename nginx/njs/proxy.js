@@ -13,7 +13,7 @@ function getUpstreamUrl(r) {
     if (backendUrl) {
         backendUrl = backendUrl + args;
     } else {
-        backendUrl = r.uri + args;
+        backendUrl = "https://" +r.variables.host + r.uri + args;
     }
     r.log("Backend url " + backendUrl);
     return backendUrl
