@@ -59,6 +59,8 @@ services:
     networks:
       default:
         ipv4_address: 172.16.1.2
+
+# ServiceA, ServiceB, and ServiceC are services that can be used to host web applications.
   serviceA:
     hostname: serviceA.local
     image: nginx:1.25.3-alpine
@@ -109,18 +111,23 @@ services:
       default:
         ipv4_address: 172.16.1.1
 
-
+# Client is a service that contains iptables rules to redirect outbound traffic on port 80 to authn service on port 81.
   client:
     hostname: client.local
     image: nginx:1.25.3-alpine
+    volumes:
+      - ./certificates/gen/serviceB:/etc/nginx/certs
+      - ./certificates/gen/ca.crt:/etc/nginx/certs/ca.crt:ro
+      - ./nginx/nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/njs:/etc/nginx/njs:ro
+      - ./nginx/index.html:/var/www/html/index.html
     privileged: true
     cap_add:
       - NET_ADMIN
     depends_on:
       - authn
-    command: >
+    entrypoint: >
       /bin/sh -c "
       apk add --no-cache iptables &&
-      iptables -t nat -A OUTPUT -p tcp --dport 80 -j DNAT --to-destination 172.16.1.2:81 &&
-      iptables -t nat -A POSTROUTING -j MASQUERADE &&
-      tail -f /dev/null"
+      iptables -t nat -A OUTPUT -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:81 &&
+      iptables -t nat -A POSTROUTING -j MASQUERADE && nginx -g 'daemon off;'"
