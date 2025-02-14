@@ -1,3 +1,4 @@
 /.idea/
 /nginx/gen/
 /certificates/gen/
+/app/node_modules/
