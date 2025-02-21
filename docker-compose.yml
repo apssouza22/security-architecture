@@ -115,9 +115,9 @@ services:
     hostname: client.local
     image: nginx:1.25.3-alpine
     volumes:
-      - ./certificates/gen/serviceB:/etc/nginx/certs
       - ./certificates/gen/ca.crt:/etc/nginx/certs/ca.crt:ro
-      - ./nginx/nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+      - ./certificates/gen/serviceB:/etc/nginx/certs
+      - ./nginx/gen/serviceB/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/njs:/etc/nginx/njs:ro
       - ./nginx/index.html:/var/www/html/index.html
     privileged: true
