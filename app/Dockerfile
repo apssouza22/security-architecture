@@ -2,7 +2,7 @@
 FROM node:18-alpine AS build
 WORKDIR /app
 COPY package*.json ./
-RUN #npm install
+RUN npm install
 COPY . .
 
 # Stage 2: Set up Nginx and serve the Node.js application
