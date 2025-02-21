@@ -30,8 +30,18 @@ Two clients are defined:
 Keycloak Console URL: http://localhost:9000 - credential: admin/password
 
 ### Authentication flow (Keycloak)
-- Go to [Login page](http://localhost:8002/login)
+- Go to [Login page](http://127.0.0.1:9000/realms/tenantA/protocol/openid-connect/auth?scope=openid&response_type=code&client_id=appTest-login-client&redirect_uri=http://localhost:8002/auth_redirect&client_secret=vCjAY0XKadXE3n4xFUb7MGDvVJ1iVVPY&application-type=web_app)
 - After login, the user will be redirected to a callback page with an authorization code which can be used to retrieve a Jwt token.
+- Retrieve the token using the authorization code:
+```bash
+curl -X POST "http://localhost:9000/realms/tenantA/protocol/openid-connect/token" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "grant_type=authorization_code" \
+     -d "client_id=appTest-login-client" \
+     -d "client_secret=vCjAY0XKadXE3n4xFUb7MGDvVJ1iVVPY" \
+     -d "code=30810f49-0738-46f4-89d0-1f93813e59e0.6f1953b4-e26a-44f4-a5d3-707566026bf5.4125bbf1-cab2-4b97-9538-7f1882b401fe" \
+     -d "redirect_uri=http://localhost:8002/auth_redirect"
+```
 - See the `authn.js` file in the `nginx/njs` directory to learn more.
 
 
