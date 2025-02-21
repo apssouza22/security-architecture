@@ -19,15 +19,15 @@ token=$(echo $access_token_response | jq -r '.access_token')
 #echo "Access token: $token"
 
 # Mutual TLS communication between services
-SERVICEA_SERVICEB=$(docker exec security-arch-serviceA-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --insecure  --cert /etc/nginx/certs/client.crt --key /etc/nginx/certs/client.key https://serviceB.local)
-SERVICEA_SERVICEC=$(docker exec security-arch-serviceA-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --insecure  --cert /etc/nginx/certs/client.crt --key /etc/nginx/certs/client.key https://serviceC.local)
+SERVICEA_SERVICEB=$(docker exec security-arch-serviceA-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --insecure  --cert /etc/nginx/certs/service.crt --key /etc/nginx/certs/service.key https://serviceB.local)
+SERVICEA_SERVICEC=$(docker exec security-arch-serviceA-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --insecure  --cert /etc/nginx/certs/service.crt --key /etc/nginx/certs/service.key https://serviceC.local)
 SERVICEB_SERVICEA=$(docker exec security-arch-serviceB-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --insecure   https://serviceA.local)
-SERVICEB_SERVICEC=$(docker exec security-arch-serviceB-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --insecure  --cert /etc/nginx/certs/client.crt --key /etc/nginx/certs/client.key https://serviceC.local)
-SERVICEC_SERVICEB=$(docker exec security-arch-serviceC-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --insecure  --cert /etc/nginx/certs/client.crt --key /etc/nginx/certs/client.key https://serviceA.local)
-SERVICEC_SERVICEA=$(docker exec security-arch-serviceC-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --insecure  --cert /etc/nginx/certs/client.crt --key /etc/nginx/certs/client.key https://serviceB.local)
+SERVICEB_SERVICEC=$(docker exec security-arch-serviceB-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --insecure  --cert /etc/nginx/certs/service.crt --key /etc/nginx/certs/service.key https://serviceC.local)
+SERVICEC_SERVICEB=$(docker exec security-arch-serviceC-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --insecure  --cert /etc/nginx/certs/service.crt --key /etc/nginx/certs/service.key https://serviceA.local)
+SERVICEC_SERVICEA=$(docker exec security-arch-serviceC-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --insecure  --cert /etc/nginx/certs/service.crt --key /etc/nginx/certs/service.key https://serviceB.local)
 CLIENT_PROXY_SERVICEA=$(docker exec security-arch-client-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" http://serviceB.local)
 
-LOCAL_SERVICEA=$(curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token"  --insecure  --cacert certificates/gen/ca.crt --cert certificates/gen/serviceA/client.crt --key certificates/gen/serviceA/client.key https://localhost)
+LOCAL_SERVICEA=$(curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token"  --insecure  --cacert certificates/gen/ca.crt --cert certificates/gen/serviceA/service.crt --key certificates/gen/serviceA/service.key https://localhost)
 
 
 # This is enough to establish the TLS communication when we want to only verify the server identity. Not mutual TLS
