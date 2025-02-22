@@ -6,10 +6,10 @@ This project demonstrates how to integrate several security mechanisms and techn
 
 Distributed systems involve multiple services or microservices that must communicate securely across a network. Key security challenges in such architectures include:
 
-1. **Secure Communication:** Ensuring that data transmitted between services is encrypted and safe from eavesdropping or tampering.
-2. **Authentication:** Verifying the identities of users and services to prevent unauthorized access.
-3. **Authorization:** Controlling what authenticated users and services are allowed to do, based on their roles and permissions.
-4. **Policy Enforcement:** Implementing fine-grained access controls and policies that govern service-to-service and user interactions.
+1. **Authentication:** Verifying the identities of users and services to prevent unauthorized access.
+2. **Authorization:** Controlling what authenticated users and services are allowed to do, based on their roles and permissions.
+3. **Policy Enforcement:** Implementing fine-grained access controls and policies that govern service-to-service and user interactions.
+4. **Secure Communication:** Ensuring that data transmitted between services is encrypted and safe from eavesdropping or tampering.
 5. **Certificate Management:** Managing digital certificates for encrypting data and establishing trust between services.
 
 

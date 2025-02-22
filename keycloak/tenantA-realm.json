@@ -267,17 +267,6 @@
       ]
     }
   ],
-  "defaultRoles": [
-    "offline_access"
-  ],
-  "scopeMappings": [
-    {
-      "clientScope": "offline_access",
-      "roles": [
-        "offline_access"
-      ]
-    }
-  ],
   "clientScopes": [
     {
       "name": "openid",
@@ -289,7 +278,6 @@
       },
       "protocolMappers": [
         {
-          "id": "C15CB2DA-9FBA-4065-99DC-1A48357A0B8A",
           "name": "tenant",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-hardcoded-claim-mapper",
@@ -305,7 +293,6 @@
           }
         },
         {
-          "id": "4D8ACDF7-09B7-4629-832F-87EDAA9442A0",
           "name": "email",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usermodel-attribute-mapper",
@@ -322,7 +309,6 @@
           }
         },
         {
-          "id": "3EC56060-C324-41C4-9890-13F8B7049315",
           "name": "userid",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usermodel-attribute-mapper",
@@ -339,7 +325,6 @@
           }
         },
         {
-          "id": "05C70A59-71CB-49F4-BB8C-AE601D5D74E9",
           "name": "given name",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usermodel-attribute-mapper",
@@ -354,7 +339,6 @@
           }
         },
         {
-          "id": "519263F0-DEAE-4A2E-A392-C9E9817971F2",
           "name": "family name",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usermodel-attribute-mapper",
@@ -371,7 +355,6 @@
           }
         },
         {
-          "id": "15044BB9-F7BF-42F8-AD68-E4D755F9493F",
           "name": "timezone",
           "protocol": "openid-connect",
           "protocolMapper" : "oidc-usermodel-attribute-mapper",
