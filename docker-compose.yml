@@ -19,4 +19,14 @@ services:
       - --health-enabled=true
       - --spi-truststore-file-hostname-verification-policy=ANY # This parameter specifies the policy for verifying the hostname when establishing SSL/TLS connections using the truststore file
 
+  authn:
+    hostname: authn.local
+    image: nginx:1.25.3-alpine
+    ports:
+      - "8002:80"
+    volumes:
+      - ./nginx/nginx-authn.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/njs:/etc/nginx/njs:ro
+    depends_on:
+      - keycloak
 
