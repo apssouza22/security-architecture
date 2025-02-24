@@ -25,6 +25,8 @@ services:
     ports:
       - "8002:80"
     volumes:
+      - ./certificates/gen/authn:/etc/nginx/certs
+      - ./certificates/gen/ca.crt:/etc/nginx/certs/ca.crt:ro
       - ./nginx/nginx-authn.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/njs:/etc/nginx/njs:ro
     depends_on:
