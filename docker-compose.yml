@@ -1,5 +1,10 @@
 networks:
   security-net: {}
+  default:
+    ipam:
+      config:
+        - subnet: 172.16.0.0/23
+          ip_range: 172.16.0.0/24
 
 services:
   keycloak:
@@ -24,6 +29,7 @@ services:
     image: nginx:1.25.3-alpine
     ports:
       - "8002:80"
+      - "443:443"
     volumes:
       - ./certificates/gen/authn:/etc/nginx/certs
       - ./certificates/gen/ca.crt:/etc/nginx/certs/ca.crt:ro
@@ -32,3 +38,57 @@ services:
     depends_on:
       - keycloak
 
+  serviceA:
+    hostname: serviceA.local
+    image: nginx:1.25.3-alpine
+    ports:
+      - "8443:443"
+      - "8003:80"
+    volumes:
+      - ./certificates/gen/serviceA:/etc/nginx/certs
+      - ./certificates/gen/ca.crt:/etc/nginx/certs/ca.crt:ro
+      - ./nginx/nginx-sidecar.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/njs:/etc/nginx/njs:ro
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    entrypoint: >
+      /bin/sh -c "
+      apk add --no-cache iptables &&
+      iptables -t nat -A OUTPUT -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:81 &&
+      iptables -t nat -A POSTROUTING -j MASQUERADE && nginx -g 'daemon off;'"
+
+  serviceB:
+    hostname: serviceB.local
+    image: nginx:1.25.3-alpine
+    ports:
+      - "8444:443"
+      - "8004:80"
+    volumes:
+      - ./certificates/gen/serviceB:/etc/nginx/certs
+      - ./certificates/gen/ca.crt:/etc/nginx/certs/ca.crt:ro
+      - ./nginx/nginx-sidecar.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/njs:/etc/nginx/njs:ro
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    entrypoint: >
+      /bin/sh -c "
+      apk add --no-cache iptables &&
+      iptables -t nat -A OUTPUT -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:81 &&
+      iptables -t nat -A POSTROUTING -j MASQUERADE && nginx -g 'daemon off;'"
+
+  # Dnsmasq is a lightweight DNS forwarder and DHCP server. It can be used to resolve DNS queries and provide IP addresses to clients.
+  dnsmasq:
+    image:  strm/dnsmasq
+    container_name: dnsmasq
+    restart: on-failure
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf
+    ports:
+      - "53/udp"
+    networks:
+      default:
+        ipv4_address: 172.16.1.1

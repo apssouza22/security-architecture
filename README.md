@@ -46,6 +46,11 @@ curl -X POST "http://localhost:8002/token" \
      -d "client_secret=your-client-secret-here"
 ```
 
+## Secure Communication
+curl --cacert /etc/nginx/certs/ca.crt https://serviceA.local
+curl --cacert /etc/nginx/certs/ca.crt https://serviceA.local --cert /etc/nginx/certs/service.crt --key /etc/nginx/certs/service.key
+
+
 ## Authorization
 We offer two types of authorization:
 - Service-to-service authorization
