@@ -77,7 +77,7 @@ services:
     volumes:
       - ./certificates/gen/serviceC:/etc/nginx/certs
       - ./certificates/gen/ca.crt:/etc/nginx/certs/ca.crt:ro
-      - ./nginx/gen/serviceC/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx-sidecar.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/njs:/etc/nginx/njs:ro
     privileged: true
     cap_add:
@@ -97,3 +97,19 @@ services:
     networks:
       default:
         ipv4_address: 172.16.1.1
+
+  # OPA is a service that can be used to enforce policies on incoming requests.
+  opa:
+    image: openpolicyagent/opa:0.8.1
+    ports:
+      - 8181:8181
+    volumes:
+      - ./opa:/etc/opa
+    command:
+      - run
+      - --server
+      - --log-level=debug
+      - /etc/opa/service_rbac.json
+      - /etc/opa/service_rbac.rego
+      - /etc/opa/user_rbac.json
+      - /etc/opa/user_rbac.rego

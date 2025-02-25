@@ -1,0 +1,16 @@
+{
+  "service_access_policies": {
+    "serviceA.local": {
+      "services": ["servicea.local", "serviceb.local", "localhost"],
+      "paths": ["/", "/compute", "/protected"]
+    },
+    "serviceB.local": {
+      "services": ["servicea.local", "serviceb.local"],
+      "paths": ["/", "/compute", "/protected"]
+    },
+    "serviceC.local": {
+      "services": ["servicea.local", "serviceb.local"],
+      "paths": ["/", "/compute", "/protected"]
+    }
+  }
+}
