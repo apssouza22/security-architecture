@@ -6,11 +6,12 @@ This project demonstrates how to integrate several security mechanisms and techn
 
 Distributed systems involve multiple services or microservices that must communicate securely across a network. Key security challenges in such architectures include:
 
-1. **Secure Communication:** Ensuring that data transmitted between services is encrypted and safe from eavesdropping or tampering.
 2. **Authentication:** Verifying the identities of users and services to prevent unauthorized access.
 3. **Authorization:** Controlling what authenticated users and services are allowed to do, based on their roles and permissions.
+1. **Secure Communication:** Ensuring that data transmitted between services is encrypted and safe from eavesdropping or tampering.
 4. **Policy Enforcement:** Implementing fine-grained access controls and policies that govern service-to-service and user interactions.
 5. **Certificate Management:** Managing digital certificates for encrypting data and establishing trust between services.
+6. **Web Application Firewall (WAF):** Protecting services from common web application attacks such as SQL injection, cross-site scripting (XSS), and DDoS attacks.
 
 
 <img src="./arch.jpg">
@@ -40,10 +41,11 @@ This type of client is used to authenticate services.
 
 Create a token using client credentials to authenticate services.
 ```
-curl -X POST "http://localhost:8002/token" \
-     -d "grant_type=client_credentials" \
-     -d "client_id=client_credentials-test" \
-     -d "client_secret=your-client-secret-here"
+curl -s --insecure --cert certificates/gen/serviceA/service.crt --key certificates/gen/serviceA/service.key \
+ -X POST "https://localhost:8443/token" \
+ -d "grant_type=client_credentials" \
+ -d "client_id=client_credentials-test" \
+ -d "client_secret=your-client-secret-here"
 ```
 
 ## Secure Communication
@@ -87,6 +89,29 @@ Server certificates can be updated without restarting the service by running the
 ```
 curl --insecure  https://localhost/certs --cacert certificates/gen/ca.crt --cert certificates/gen/serviceB/client.crt --key certificates/gen/serviceB/client.key -F cert=@certificates/gen/serviceA/client.crt -F key=@certificates/gen/serviceA/client.key
 ```
+
+
+## Web application firewall(WAF)
+The project uses Nginx as a reverse proxy and web application firewall(WAF) to secure the services.
+We also leverage the OWASP ModSecurity Core Rule Set(CRS) to protect the services from common web application attacks.
+Here some requests that will be blocked by the WAF:
+```
+#XSS
+curl http://localhost:8001/?param="><script>alert(1);</script>"
+#SQLI - ?id=1' OR '1'='1" 
+curl -X GET "http://localhost:8001/?id=1%27%20OR%20%271%27\=%271"
+#Scanner/Bot Detection
+curl --request GET  --url http://localhost:8001/   --header 'User-Agent: nmap'
+# Remote Code Execution
+curl -X GET "http://localhost:8001/?q=;cat%20/etc/passwd"
+#Local File Inclusion
+curl -X GET "http://localhost:8001/?file=../../../../etc/passwd"
+XML External Entity
+curl -X POST "http://localhost:8001" -d '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE data [<!ENTITY file SYSTEM "file:///etc/passwd">]><data>&file;</data>'
+DDoS
+curl -X POST "http://localhost:8001" -d "$(head -c 1000000 </dev/urandom)"
+```
+
 
 ## Local DNS
 The project uses a local DNS server to resolve the service names to the IP addresses of the services. 

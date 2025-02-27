@@ -24,7 +24,6 @@ async function validate(r, res) {
         r.return(200);
     });
 
-    r.return(200);
 }
 
 async function isServiceAllowed(r, serviceName) {
