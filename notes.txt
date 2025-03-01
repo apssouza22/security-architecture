@@ -1,0 +1,27 @@
+---------
+Useful links
+---------
+https://github.com/nginx/njs-examples?tab=readme-ov-file#using-auth-request-http-async-var-auth-request
+https://medium.com/@buffetbenjamin/keycloak-essentials-openid-connect-c7fa87d3129d
+https://github.com/summerwind/opa-nginx-rbac
+https://community.auth0.com/t/how-is-jwt-io-able-to-validate-signatures/122194
+
+https://github.com/vadimeisenbergibm/envoy-generic-forward-proxy/blob/master/nginx_forward_proxy/nginx.conf
+https://github.com/vadimeisenbergibm/envoy-generic-forward-proxy/blob/master/envoy_sidecar_after_nginx/set_iptables.sh
+https://github.com/jmwhitworth/docker-php-lamp/tree/master
+https://github.com/nginx/njs-examples?tab=readme-ov-file
+```
+CODE=the returned code here
+curl -X POST "http://localhost:9000/realms/tenantA/protocol/openid-connect/token" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "grant_type=authorization_code&code=${CODE}&redirect_uri=http://localhost:8002/auth_redirect&client_id=appTest-login-client&client_secret=vCjAY0XKadXE3n4xFUb7MGDvVJ1iVVPY"
+```
+
+Jwt token validation diagram - https://losikov.medium.com/part-6-authentication-with-jwt-json-web-token-ec78459b9c88
+JWT token validation njs - https://github.com/lombax85/nginx-jwt/blob/master/config/module.js
+OpenID flow diagrams - https://darutk.medium.com/diagrams-of-all-the-openid-connect-flows-6968e3990660
+Understanding JWT - https://darutk.medium.com/understanding-id-token-5f83f50fa02e
+ID token vs access token - https://miro.medium.com/v2/resize:fit:720/format:webp/0*g8vnYTES4Ghj_P46.jpg
+Nginx Security module - https://fedoramagazine.org/a-web-application-firewall-for-nginx/
+ModSecurity docker image repo - https://github.com/coreruleset/modsecurity-crs-docker/blob/main/nginx/docker-entrypoint.d/91-update-resolver.sh
+

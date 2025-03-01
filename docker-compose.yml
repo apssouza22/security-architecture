@@ -82,23 +82,6 @@ services:
     cap_add:
       - NET_ADMIN
 
-  # Dnsmasq is a lightweight DNS forwarder and DHCP server. It can be used to resolve DNS queries and provide IP addresses to clients.
-  # This can be removed if we implement this local resolver in the host machine.
-  # https://github.com/coreruleset/modsecurity-crs-docker/blob/main/nginx/docker-entrypoint.d/91-update-resolver.sh
-  dnsmasq:
-    image:  strm/dnsmasq
-    container_name: dnsmasq
-    restart: on-failure
-    cap_add:
-      - NET_ADMIN
-    volumes:
-      - ./dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf
-    ports:
-      - "53/udp"
-    networks:
-      default:
-        ipv4_address: 172.16.1.1
-
   # OPA is a service that can be used to enforce policies on incoming requests.
   opa:
     image: openpolicyagent/opa:0.8.1
