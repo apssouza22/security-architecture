@@ -49,9 +49,15 @@ curl -s --insecure --cert certificates/gen/serviceA/service.crt --key certificat
 ```
 
 ## Secure Communication
+Secure communication is done using mutual TLS with Nginx acting as sidecar proxy for services.
+The services communicate with each other using HTTPS with mutual TLS. The services present their certificates to Nginx, which verifies the certificates 
+to validate the identity of clients and servers by checking the certificates against a Certificate Authority(CA).
+```
+# Validating the server identity
 curl --cacert /etc/nginx/certs/ca.crt https://serviceA.local
+# Validating the client and the server identity 
 curl --cacert /etc/nginx/certs/ca.crt https://serviceA.local --cert /etc/nginx/certs/service.crt --key /etc/nginx/certs/service.key
-
+```
 
 ## Authorization
 We offer two types of authorization:
