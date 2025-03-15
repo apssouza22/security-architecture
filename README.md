@@ -1,6 +1,7 @@
 # Security Architecture
 This project demonstrates how to integrate several security mechanisms and technologies to tackle common security challenges such as authentication, authorization, and secure communication.
 
+Watch the [video](https://youtu.be/XaDp3lyHUJc) for a detailed explanation of the project.
 
 ### Understanding Security Challenges in Distributed Systems
 
