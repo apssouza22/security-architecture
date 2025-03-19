@@ -4,36 +4,18 @@
 
 import fs from 'fs'
 
-/**
- * Retrieves the cert value
- * @param {NginxHTTPRequest} r - The Nginx HTTP request object.
- * @returns {string, string} - The cert associated with the server name.
- */
-function js_cert(r) {
-  r.log("retrieving cert: " + r.variables['ssl_server_name']);
-  return read_cert_or_key(r, 'service.crt');
 
-  // if (r.variables['ssl_server_name']) {
-  //     read_cert_or_key(r, r.variables['ssl_server_name'] + '.crt');
-  // }
-  // return '';
+function get_cert(r) {
+  return get_cert_data(r, 'service.crt');
 }
 
-function js_ca_cert(r) {
-  return read_cert_or_key(r, 'ca.crt');
-  // if (r.variables['ssl_server_name']) {
-  //     read_cert_or_key(r, r.variables['ssl_server_name'] + '-ca.crt');
-  // }
-  // return '';
+function get_ca_cert(r) {
+  return get_cert_data(r, 'ca.crt');
 }
 
-/**
- * Retrieves the key value
- * @param {NginxHTTPRequest} r - The Nginx HTTP request object.
- * @returns {string} - The key associated with the server name.
- */
-function js_key(r) {
-  return read_cert_or_key(r, 'service.key');
+
+function get_cert_key(r) {
+  return get_cert_data(r, 'service.key');
 }
 
 /**
@@ -45,11 +27,12 @@ function joinPaths(...args) {
 
 /**
  * Retrieves the key/cert value from file cache or disk
+ *
  * @param {NginxHTTPRequest} r - The Nginx HTTP request object.
  * @param {string} fileName - The file extension
  * @returns {string} - The key/cert associated with the ssl_server_name.
  */
-function read_cert_or_key(r, fileName) {
+function get_cert_data(r, fileName) {
   let data = '';
   let path = '';
   const zone = r.variables['shared_dict_zone_name'];
@@ -88,24 +71,9 @@ function read_cert_or_key(r, fileName) {
   return data
 }
 
-function keyFromURI(uri) {
-  if (!uri || typeof uri !== 'string') {
-    return null;
-  }
-  const trimmedURI = uri.trim();
-  const lastSlashIndex = trimmedURI.lastIndexOf('/');
-  if (lastSlashIndex === -1 || lastSlashIndex === trimmedURI.length - 1) {
-    return trimmedURI;
-  }
-  const lastPart = trimmedURI.substring(lastSlashIndex + 1)
-  return lastPart;
-}
-
 /**
  * Handle get/set APIs
  * To upload files via curl you can use:
- * `curl -iv http://localhost:80/kv -F cert=@njs/http/certs/ca/intermediate/certs/www.example.com.cert.pem -F key=@njs/http/certs/ca/intermediate/private/www.example.com.key.pem`
- * then read it back: `curl http://localhost/kv/www.example.com.cert.pem`
  *
  * @param {NginxHTTPRequest} r - The Nginx HTTP request object.
  */
@@ -126,44 +94,50 @@ function handleRequest(r) {
     return
   }
 
-  if (r.method === 'POST') {
-    const requestBody = r.requestText;
-    if (!requestBody || requestBody.length === 0) {
-      r.return(400, 'No file uploaded');
+  if (r.method !== 'POST') {
+    r.return(405, 'Method Not Allowed');
+    return;
+  }
+
+  const requestBody = r.requestText;
+  if (!requestBody || requestBody.length === 0) {
+    r.return(400, 'No file uploaded');
+    return;
+  }
+
+  // Parse the request body to extract file information
+  var boundary = r.headersIn['Content-Type'].match(/boundary=(.*)/)[1];
+  var parts = requestBody.split('--' + boundary);
+  for (var i = 0; i < parts.length; i++) {
+    var part = parts[i].trim();
+    r.log(" part = " +part)
+    if (part.indexOf('Content-Disposition') === -1) {
+      continue;
+    }
+    var filename = part.match(/filename="(.*)"/);
+    if (!filename) {
+      r.return(400, 'No filename found');
       return;
     }
-    // Parse the request body to extract file information
-    var boundary = r.headersIn['Content-Type'].match(/boundary=(.*)/)[1];
-    var parts = requestBody.split('--' + boundary);
-    for (var i = 0; i < parts.length; i++) {
-      var part = parts[i].trim();
-      if (part.indexOf('Content-Disposition') !== -1) {
-        var filename = part.match(/filename="(.*)"/);
-        if (filename) {
-          // The file content is available in the part after the blank line (\r\n\r\n)
-          var fileContent = part.split('\r\n\r\n')[1];
-          let path = joinPaths(prefix, filename[1]);
-          r.log(
-              `Saving file: ${filename[1]}, Size: ${fileContent.length}, Path: ${path}`);
-          try {
-            fs.writeFileSync(path, fileContent);
-            r.log(`Wrote to file. Path: ${path}`);
-            if (cache) {
-              const key = filename[1];
-              cache.set(key, fileContent);
-              r.log(`Wrote to cache. Key: ${key}`);
-            }
-          } catch (err) {
-            r.return(500, `Error saving ${err}`);
-            return;
-          }
-        }
+    // The file content is available in the part after the blank line (\r\n\r\n)
+    var fileContent = part.split('\r\n\r\n')[1];
+    let path = joinPaths(prefix, filename[1]);
+    r.log(
+        `Saving file: ${filename[1]}, Size: ${fileContent.length}, Path: ${path}`);
+    try {
+      fs.writeFileSync(path, fileContent);
+      r.log(`Wrote to file. Path: ${path}`);
+      if (cache) {
+        const key = filename[1];
+        cache.set(key, fileContent);
+        r.log(`Wrote to cache. Key: ${key}`);
       }
+    } catch (err) {
+      r.return(500, `Error saving ${err}`);
+      return;
     }
-    r.return(201);
   }
-  r.return(405, 'Method Not Allowed');
-  return;
+  r.return(201);
 }
 
 /**
@@ -180,35 +154,10 @@ function clear_cache(r) {
   r.return(200)
 }
 
-/**
- * Info handler to return request info
- * @param {NginxHTTPRequest} r - The Nginx HTTP request object.
- */
-function info(r) {
-  const out = {
-    request: r,
-    variables: {
-      shared_dict_zone_name: r.variables['shared_dict_zone_name'],
-      dynamic_ssl_cert: r.variables['dynamic_ssl_cert'],
-      dynamic_ssl_key: r.variables['dynamic_ssl_key'],
-      cert_folder: r.variables['cert_folder'],
-      ssl_alpn_protocol: r.variables['ssl_alpn_protocol'],
-      ssl_client_fingerprint: r.variables['ssl_client_fingerprint'],
-      ssl_session_id: r.variables['ssl_session_id'],
-      ssl_server_name: r.variables['ssl_server_name'],
-      ssl_protocol: r.variables['ssl_protocol '],
-      hostname: r.variables['hostname'],
-      host: r.variables['host'],
-    }
-  }
-  r.return(200, JSON.stringify(out))
-}
-
 export default {
-  js_cert,
-  js_ca_cert,
-  js_key,
+  get_cert,
+  get_ca_cert,
+  get_cert_key,
   handleRequest,
-  clear_cache,
-  info
+  clear_cache
 }
