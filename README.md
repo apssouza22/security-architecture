@@ -32,12 +32,12 @@ Two clients are defined:
 Keycloak Console URL: http://localhost:9000 - credential: admin/password
 
 ### Authentication flow (Keycloak)
-- Go to [Login page](http://127.0.0.1:9000/realms/tenantA/protocol/openid-connect/auth?scope=openid&response_type=code&client_id=appTest-login-client&redirect_uri=http://localhost:8002/auth_redirect&client_secret=vCjAY0XKadXE3n4xFUb7MGDvVJ1iVVPY&application-type=web_app)
+- Go to [Login page](https://localhost:8443/login)
 - See the `authn.js` file in the `nginx/njs` directory to learn more.
 
 
 ### Client credentials
-We created a client credentials client in the keycloak to demonstrate how to authenticate using client credentials.
+We have created a client credentials client in the keycloak to demonstrate how to authenticate using client credentials.
 This type of client is used to authenticate services.
 
 Create a token using client credentials to authenticate services.
@@ -56,6 +56,7 @@ to validate the identity of clients and servers by checking the certificates aga
 ```
 # Validating the server identity
 curl --cacert /etc/nginx/certs/ca.crt https://serviceA.local
+
 # Validating the client and the server identity 
 curl --cacert /etc/nginx/certs/ca.crt https://serviceA.local --cert /etc/nginx/certs/service.crt --key /etc/nginx/certs/service.key
 ```
@@ -72,8 +73,8 @@ Service-to-service authorization is performed in two levels:
 
 ### User access control
 User access control is done using JWT tokens.
-We use three strategies to validate JWT tokens:
-- Retrieve the certs from the Keycloak server and validate the token
+We provide three strategies to validate JWT tokens:
+- Retrieve the certs from the IDP (Keycloak) server and validate the token
 - Use x5t(Thumbprint) embedded in the token to retrieve the public key from a local truststore and validate the token
 - Using embedded certificate to validate the token after validating the certificate against a CA
 
@@ -94,7 +95,11 @@ To test the service to service communication using certificates, you can use the
 ### Update certificates
 Server certificates can be updated without restarting the service by running the following command:
 ```
-curl --insecure  https://localhost/certs --cacert certificates/gen/ca.crt --cert certificates/gen/serviceB/client.crt --key certificates/gen/serviceB/client.key -F cert=@certificates/gen/serviceA/client.crt -F key=@certificates/gen/serviceA/client.key
+## Update cert
+curl -X POST --header "Authorization: $token" --insecure --cacert certificates/gen/ca.crt --cert certificates/gen/serviceA/service.crt --key certificates/gen/serviceA/service.key https://localhost:8003/certs -F cert=@certificates/gen/serviceA/service.crt -F key=@certificates/gen/serviceA/service.key
+
+## Get cert
+curl --header "Authorization: $token"  --insecure  --cacert certificates/gen/ca.crt --cert certificates/gen/serviceA/service.crt --key certificates/gen/serviceA/service.key https://localhost:8003/certs
 ```
 
 
@@ -119,7 +124,3 @@ DDoS
 curl -X POST "http://localhost:8001" -d "$(head -c 1000000 </dev/urandom)"
 ```
 
-
-## Local DNS
-The project uses a local DNS server to resolve the service names to the IP addresses of the services. 
-This was required for nginx to resolve the service names when using dynamic upstream urls. 

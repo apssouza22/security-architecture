@@ -42,7 +42,7 @@ services:
     hostname: serviceA.local
     image: app-example:latest
     ports:
-      - "8003:80"
+      - "8003:443"
     volumes:
       - ./certificates/gen/serviceA:/etc/nginx/certs
       - ./certificates/gen/ca.crt:/etc/nginx/certs/ca.crt:ro

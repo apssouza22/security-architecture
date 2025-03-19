@@ -29,10 +29,12 @@ SERVICEC_SERVICEB=$(docker exec security-arch-serviceC-1 curl -s -o /dev/null -w
 SERVICEC_SERVICEA=$(docker exec security-arch-serviceC-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --cacert /etc/nginx/certs/ca.crt  --cert /etc/nginx/certs/service.crt --key /etc/nginx/certs/service.key https://serviceB.local)
 SERVICEA_PROXY_SERVICEB=$(docker exec security-arch-serviceA-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" http://serviceB.local)
 
-LOCAL_SERVICEA=$(curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token"  --insecure  --cacert certificates/gen/ca.crt --cert certificates/gen/serviceA/service.crt --key certificates/gen/serviceA/service.key https://localhost)
+LOCAL_GTW=$(curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token"  --insecure  --cacert certificates/gen/ca.crt --cert certificates/gen/serviceA/service.crt --key certificates/gen/serviceA/service.key https://localhost:8443)
+UPDATE_CERT=$(curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token"  --insecure  --cacert certificates/gen/ca.crt --cert certificates/gen/serviceA/service.crt --key certificates/gen/serviceA/service.key https://localhost:8003/certs -F cert=@certificates/gen/serviceA/service.crt -F key=@certificates/gen/serviceA/service.key)
 
 
-echo "Local -> ServiceA: $LOCAL_SERVICEA"
+echo "Local -> Auth Gateway: $LOCAL_GTW"
+echo "Local -> UPDATE_CERT = $UPDATE_CERT, Expected = 201"
 echo "ServiceA -> SIDECAR_PROXY -> ServiceB: Actual = $SERVICEA_PROXY_SERVICEB, Expected = 200"
 
 echo "ServiceA -> ServiceB: Actual = $SERVICEA_SERVICEB, Expected = 200"
