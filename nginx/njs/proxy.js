@@ -5,13 +5,15 @@ import qs from "querystring";
  * @param r see http://nginx.org/en/docs/njs/reference.html
  */
 function getUpstreamUrl(r) {
+    r.log("Retrieving upstream url" );
     let backendUrl = r.headersIn['X-Backend-URL'];
-    let args = ""
-    if (r.args) {
-        args = '?' + qs.stringify(r.args);
+    let args = qs.stringify(r.args)
+    if (args) {
+        r.log("args="+ args );
+        args = '?' + args
     }
     if (backendUrl) {
-        backendUrl = backendUrl + args;
+        backendUrl = backendUrl + r.uri + args;
     } else {
         backendUrl = "https://" +r.variables.host + r.uri + args;
     }
