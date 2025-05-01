@@ -14,11 +14,12 @@ mkdir -p "gen/protected"
 openssl genrsa -out gen/protected/rootCA.key 4096
 openssl req -x509 -new -nodes -config root_config.cnf -key gen/protected/rootCA.key -sha256 -days 3650 -out gen/protected/rootCA.pem
 
-## Generate Private Key and Identity CA signed with Root CA
+## Generate Private Key and certificate signing request (CSR) for Intermediary CA
 openssl genrsa -out gen/protected/intermediateCA.key 4096 # private key
 openssl req -new -config ca_config.cnf -key gen/protected/intermediateCA.key -out gen/protected/intermediateCA.csr
 
 # This process should be offline
+# The intermediate CA is signed by the root CA, which is used to sign the service certificate.
 openssl x509 -req -in gen/protected/intermediateCA.csr -CA gen/protected/rootCA.pem -CAkey gen/protected/rootCA.key -CAcreateserial -out gen/protected/intermediateCA.pem -days 365 -sha256  -extfile ca_config.cnf -extensions v3_ca
 
 ## Generate Full Chain Certificate
