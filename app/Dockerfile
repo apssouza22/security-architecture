@@ -6,7 +6,7 @@ RUN #npm install
 COPY . .
 
 # Stage 2: Set up Nginx and serve the Node.js application
-FROM nginx:1.25.3-alpine
+FROM nginx:1.27.2-alpine
 COPY --from=build /app /app
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY command.sh command.sh

@@ -1,0 +1,30 @@
+#---------------------------------------------------------------------- #
+# Outbound proxy configuration
+#---------------------------------------------------------------------- #
+js_import proxy from proxy.js;
+js_set $upstream_url proxy.getUpstreamUrl; # Define the upstream url to be proxied the request
+
+# Use the local DNS resolver(/etc/resolv.conf).  Required for dynamic upstream url
+resolver 127.0.0.11 valid=5s;
+
+# A proxy to provide a ssl client certificate required for the communication with services
+server {
+    listen 81 default_server;
+    listen [::]:81 default_server;
+    server_name proxy.local;
+    location / {
+        proxy_buffering off;
+
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+
+        proxy_pass $upstream_url; # Since the upstream url is dynamic, we need to set dns resolver
+
+        proxy_ssl_trusted_certificate /etc/nginx/certs/ca.crt;
+        proxy_ssl_certificate         data:$dynamic_ssl_cert;
+        proxy_ssl_certificate_key     data:$dynamic_ssl_key;
+        proxy_ssl_verify              on;
+    }
+}
