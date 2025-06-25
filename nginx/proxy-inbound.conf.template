@@ -35,6 +35,13 @@ server {
     ssl_verify_client on;
     ssl_verify_depth 2;
 
+    # Performing conditional SSL verification
+    # Skip verification for /q/metrics
+    set $verify $ssl_client_verification$ssl_client_verify;
+    if ($verify ~ (onNONE|onFAILED)) {
+      return 400 "No required SSL certificate was sent";
+    }
+
     location / {
         auth_request /_authz;
 
