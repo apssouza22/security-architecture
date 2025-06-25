@@ -4,13 +4,6 @@
 # This is required to dynamically set the SERVICE_PORT
 #---------------------------------------------------------------------- #
 
-# Mapping for SSL verification
-map $request_uri $ssl_client_verification {
-    default ${SSL_CLIENT_VERIFY};   # Enable verification by default
-    /q/metrics off;                 # Disable verification for /q/metrics
-    /q/health off;                  # Disable verification for /q/health
-}
-
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
@@ -33,15 +26,9 @@ server {
 
     # the server will request a certificate from the client and verifies it against a trusted CA.
     ssl_client_certificate /etc/nginx/certs/ca.crt;
-    ssl_verify_client on;
     ssl_verify_depth 2;
 
-    # Performing conditional SSL verification
-    # Skip verification for /q/metrics
-    set $verify $ssl_client_verification$ssl_client_verify;
-    if ($verify ~ (onNONE|onFAILED)) {
-      return 400 "No required SSL certificate was sent";
-    }
+    ssl_verify_client optional; # Disable default client verification. The check is done with auth_request /_authz;
 
     location / {
         auth_request /_authz;

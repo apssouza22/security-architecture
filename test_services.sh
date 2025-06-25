@@ -24,6 +24,7 @@ SERVICEA_SERVICEC=$(docker exec security-arch-serviceA-1 curl -s -o /dev/null -w
 SERVICEB_SERVICEA=$(docker exec security-arch-serviceB-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --cacert /etc/nginx/certs/ca.crt  --cert /etc/nginx/certs/service.crt --key /etc/nginx/certs/service.key https://serviceA.local)
 SERVICEB_SERVICEA_NO_CA=$(docker exec security-arch-serviceB-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --cert /etc/nginx/certs/service.crt --key /etc/nginx/certs/service.key https://serviceA.local)
 SERVICEB_SERVICEA_NO_CERT=$(docker exec security-arch-serviceB-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --insecure   https://serviceA.local)
+SERVICEB_SERVICEA_EXPIRED=$(docker exec security-arch-serviceB-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --cacert /etc/nginx/certs/ca.crt  --cert /etc/nginx/certs/service.crt --key /etc/nginx/certs/service.key https://serviceA.local)
 SERVICEB_SERVICEC=$(docker exec security-arch-serviceB-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --cacert /etc/nginx/certs/ca.crt --cert /etc/nginx/certs/service.crt --key /etc/nginx/certs/service.key https://serviceC.local)
 SERVICEC_SERVICEB=$(docker exec security-arch-serviceC-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --cacert /etc/nginx/certs/ca.crt  --cert /etc/nginx/certs/service.crt --key /etc/nginx/certs/service.key https://serviceA.local)
 SERVICEC_SERVICEA=$(docker exec security-arch-serviceC-1 curl -s -o /dev/null -w "%{http_code}" --header "Authorization: $token" --cacert /etc/nginx/certs/ca.crt  --cert /etc/nginx/certs/service.crt --key /etc/nginx/certs/service.key https://serviceB.local)
@@ -41,7 +42,8 @@ echo "ServiceA -> ServiceB: Actual = $SERVICEA_SERVICEB, Expected = 200"
 echo "ServiceC -> ServiceB: Actual = $SERVICEC_SERVICEB, Expected = 200"
 echo "ServiceC -> ServiceA: Actual = $SERVICEC_SERVICEA, Expected = 200"
 echo "ServiceB -> ServiceA: Actual = $SERVICEC_SERVICEA, Expected = 200"
-echo "ServiceB -> ServiceA: Actual = $SERVICEB_SERVICEA_NO_CERT, Expected = 400 - Not sent cert"
-echo "ServiceB -> ServiceA: Actual = $SERVICEB_SERVICEA_NO_CA, Expected = 400 - Not sent ca cert"
+echo "ServiceB -> ServiceA: Actual = $SERVICEB_SERVICEA_NO_CA, Expected = 000 - Not sent ca cert"
+echo "ServiceB -> ServiceA: Actual = $SERVICEB_SERVICEA_NO_CERT, Expected = 403 - Not sent cert"
+echo "ServiceB -> ServiceA: Actual = $SERVICEB_SERVICEA_EXPIRED, Expected = 403 - Expired cert"
 echo "ServiceB -> ServiceC: Actual = $SERVICEB_SERVICEC, Expected = 403 - Policy enforcement"
 echo "ServiceA -> ServiceC: Actual = $SERVICEA_SERVICEC, Expected = 403 - Policy enforcement"

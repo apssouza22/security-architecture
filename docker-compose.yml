@@ -67,6 +67,7 @@ services:
     volumes:
       - ./certificates/gen/serviceB:/etc/nginx/certs
       - ./certificates/gen/ca.crt:/etc/nginx/certs/ca.crt:ro
+      - ./certificates/expired:/etc/nginx/certs/expired:ro
       - ./nginx/gen/serviceB/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/njs:/etc/nginx/njs:ro
       - ./nginx/proxy-inbound.conf.template:/etc/nginx/templates/proxy-inbound.conf.template

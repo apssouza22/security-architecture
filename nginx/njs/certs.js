@@ -4,7 +4,6 @@
 
 import fs from 'fs'
 
-
 function get_cert(r) {
   return get_cert_data(r, 'service.crt');
 }
@@ -13,6 +12,14 @@ function get_ca_cert(r) {
   return get_cert_data(r, 'ca.crt');
 }
 
+function isValidCert(r) {
+  const result = r.variables['ssl_client_verify']
+  if (result === 'SUCCESS') {
+    return true;
+  }
+  r.log("Certificate verify : " + result);
+  return false;
+}
 
 function get_cert_key(r) {
   return get_cert_data(r, 'service.key');
@@ -110,7 +117,7 @@ function handleRequest(r) {
   var parts = requestBody.split('--' + boundary);
   for (var i = 0; i < parts.length; i++) {
     var part = parts[i].trim();
-    r.log(" part = " +part)
+    r.log(" part = " + part)
     if (part.indexOf('Content-Disposition') === -1) {
       continue;
     }
@@ -159,5 +166,6 @@ export default {
   get_ca_cert,
   get_cert_key,
   handleRequest,
-  clear_cache
+  clear_cache,
+  isValidCert,
 }

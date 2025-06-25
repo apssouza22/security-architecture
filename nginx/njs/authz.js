@@ -1,4 +1,5 @@
 import token from './token.js';
+import certs from './certs.js';
 
 /**
  * Validate the request based on the client certificate and OPA policy.
@@ -6,6 +7,10 @@ import token from './token.js';
  * @param res
  */
 async function validate(r, res) {
+    if(!certs.isValidCert(r)){
+        r.return(403, "Invalid client certificate");
+        return;
+    }
     const serviceName = getCommonNameFromCertificate(r);
     if (!serviceName) {
         r.return(403);
@@ -54,11 +59,11 @@ async function isServiceAllowed(r, serviceName) {
 }
 
 function getCommonNameFromCertificate(r) {
+    r.log("Certificate verify : " + r.variables.ssl_client_verify);
     let cert = r.variables.ssl_client_s_dn;
     if (!cert) {
         return null;
     }
-
     let match = cert.match(/CN=([^,]*)/);
     if (!match) {
         return null;
