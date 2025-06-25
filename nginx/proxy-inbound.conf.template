@@ -14,6 +14,7 @@ map $request_uri $ssl_client_verification {
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
+    server_name ${SERVICE_NAME};
     ssl_session_timeout 1d;
     ssl_session_cache shared:MozSSL:10m;  # about 40000 sessions
     ssl_session_tickets off;

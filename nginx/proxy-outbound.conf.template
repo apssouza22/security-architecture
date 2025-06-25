@@ -11,7 +11,7 @@ resolver 127.0.0.11 valid=5s;
 server {
     listen 81 default_server;
     listen [::]:81 default_server;
-    server_name proxy.local;
+    server_name outbound.proxy;
     location / {
         proxy_buffering off;
 

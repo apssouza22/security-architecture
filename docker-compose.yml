@@ -42,7 +42,7 @@ services:
     hostname: serviceA.local
     image: app-example:latest
     environment:
-      SERVERNAME: serviceA.local
+      SERVICE_NAME: serviceA.local
     ports:
       - "8003:443"
     volumes:
@@ -60,7 +60,7 @@ services:
     hostname: serviceB.local
     image: app-example:latest
     environment:
-      SERVERNAME: serviceB.local
+      SERVICE_NAME: serviceB.local
     ports:
       - "8444:443"
       - "8004:80"
@@ -79,7 +79,7 @@ services:
     hostname: serviceC.local
     image: app-example:latest
     environment:
-      SERVERNAME: serviceC.local
+      SERVICE_NAME: serviceC.local
     ports:
       - "8445:443"
       - "8005:80"
