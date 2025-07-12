@@ -4,19 +4,35 @@
  * @param callback
  */
 function validateJwtToken(r, callback) {
-    const token = r.headersIn.Authorization;
+    r.log("Validating JWT token!!");
+    let token = r.headersIn.Authorization;
     if(!token) {
         r.return(401, "Token not found");
         return false;
     }
+    
+    // Remove 'Bearer ' prefix if present
+    if (token.startsWith('Bearer ')) {
+        token = token.substring(7);
+    }
+    
     const tokenParts = token.split('.');
+    if (tokenParts.length !== 3) {
+        r.return(401, "Invalid token format");
+        return false;
+    }
+    
     const decodedHeader = Buffer.from(tokenParts[0], 'base64').toString('utf-8');
     const header = JSON.parse(decodedHeader);
     let callbackFn = callback;
     if(!callback){
         callbackFn = function(isValid) {
             r.log("Token is valid: " + isValid);
-            return r.return(200);
+            if (isValid) {
+                return r.return(200);
+            } else {
+                return r.return(401, "Invalid token");
+            }
         }
     }
 
