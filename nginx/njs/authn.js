@@ -120,8 +120,63 @@ function generateRandomState() {
     return result;
 }
 
+/**
+ * Perform authentication check using a authentication service
+ * @param r see http://nginx.org/en/docs/njs/reference.html
+ */
+async function authCheck(r) {
+    try {
+        let resp = await r.subrequest('/_authn')
+        r.log("Auth check status:" + resp.status);
+
+        if (resp.status !== 200) {
+            r.return(401, "Unauthorized");
+            return
+        }
+        const response = getResponse(resp, r);
+        if(!response) {
+            return;
+        }
+
+        r.headersOut['X-Auth-Token'] = response.token;
+        r.headersOut['X-Upstream-Url'] = response.upstreamUrl;
+        r.headersOut['X-Set-Cookie'] = resp.headersOut['Set-Cookie'];
+
+        return r.return(200, "Authorized");
+
+    } catch (e) {
+        r.return(500, e);
+    }
+}
+
+function getResponse(resp, r){
+    let response;
+    try {
+        response = JSON.parse(resp.responseText);
+    } catch (e) {
+        r.return(500, "Invalid response format");
+        return;
+    }
+
+    if (!response.token || !response.upstreamUrl) {
+        r.return(500, "Missing required response fields");
+        return;
+    }
+    return response;
+}
+
+function handleRespHeader(r) {
+    // Pass through auth headers from subrequest auth check to client response
+    if (r.variables.auth_set_cookie) {
+        r.headersOut['set-cookie'] = r.variables.auth_set_cookie;
+    }
+}
+
+
 export default {
     exchangeCodeForToken,
     validate,
-    handleLoginRedirect
+    handleLoginRedirect,
+    handleRespHeader,
+    authCheck
 };
