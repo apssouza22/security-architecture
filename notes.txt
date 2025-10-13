@@ -24,4 +24,5 @@ Understanding JWT - https://darutk.medium.com/understanding-id-token-5f83f50fa02
 ID token vs access token - https://miro.medium.com/v2/resize:fit:720/format:webp/0*g8vnYTES4Ghj_P46.jpg
 Nginx Security module - https://fedoramagazine.org/a-web-application-firewall-for-nginx/
 ModSecurity docker image repo - https://github.com/coreruleset/modsecurity-crs-docker/blob/main/nginx/docker-entrypoint.d/91-update-resolver.sh
+Envoy step by step with iptables config - https://dev.to/naveens16/envoy-sidecar-proxy-mastering-traffic-control-observability-and-autoscaling-in-kubernetes-kcg
 
